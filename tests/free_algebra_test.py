@@ -13,7 +13,8 @@ from sympy import (
 )
 
 from drudge import (
-    Drudge, Range, Vec, Term, Perm, NEG, CONJ, TensorDef, CR, UP, DOWN
+    Drudge, PartHoleDrudge, Range, Vec, Term, Perm, NEG, CONJ, TensorDef, CR,
+    UP, DOWN
 )
 
 from conftest import skip_in_spark
@@ -939,7 +940,7 @@ def test_tensors_can_substitute_strings_of_vectors(
 def test_batch_vector_substitutions(
         free_alg, full_balance, simplify
 ):
-    """Test the batch substitutions using the subst_all method
+    """Test the batch substitutions using the subst_all method.
     """
 
     dr = free_alg
@@ -1021,7 +1022,7 @@ def test_batch_vector_substitutions(
 
 @pytest.mark.parametrize('full_balance', [True, False])
 def test_batch_amp_substitutions(free_alg, full_balance):
-    """Test the batch amplitude substitutions using the subst_all method
+    """Test the batch amplitude substitutions using the subst_all method.
     """
 
     dr = free_alg
@@ -1056,6 +1057,74 @@ def test_batch_amp_substitutions(free_alg, full_balance):
         defs, simult_all=True, full_balance=full_balance, simplify=True
     )
     assert res == expected_simutaneous
+
+
+@pytest.mark.parametrize('simult_all', [True, False])
+@pytest.mark.parametrize('simplify', [True, False])
+def test_batch_substitution_with_empty_wilds(spark_ctx, simult_all, simplify):
+    """Test subst_all with wilds={}.
+    """
+
+    dr = PartHoleDrudge(spark_ctx)
+    names = dr.names
+
+    c_dag = names.c_dag
+    c_ = names.c_
+    i, j = names.O_dumms[:2]
+    a, b = names.V_dumms[:2]
+    p, q = dr.all_orb_dumms[:2]
+
+    x = IndexedBase('x')
+    y = IndexedBase('y')
+    h = IndexedBase('h')
+
+    orig = dr.einst(
+        h[p, q] * (
+            (x[p] * c_dag[p, UP] - y[p] * c_[p, DOWN])
+            * (x[q] * c_[q, UP] - y[q] * c_dag[q, DOWN])
+            + (x[p] * c_dag[p, DOWN] + y[p] * c_[p, UP])
+            * (x[q] * c_[q, DOWN] + y[q] * c_dag[q, UP])
+        )
+    ).simplify()
+
+    defs = []
+    for idx in [i, j]:
+        defs.append(dr.define(x[idx], 0))
+        defs.append(dr.define(y[idx], 1))
+    for idx in [a, b]:
+        defs.append(dr.define(x[idx], 1))
+        defs.append(dr.define(y[idx], 0))
+
+    res = orig.subst_all(
+        defs, wilds={}, simult_all=simult_all, simplify=simplify
+    )
+
+    expected = dr.einst(
+        h[i, j] * (
+            c_[i, DOWN] * c_dag[j, DOWN]
+            + c_[i, UP] * c_dag[j, UP]
+        )
+    )
+    expected += dr.einst(
+        h[i, a] * (
+            - c_[i, DOWN] * c_[a, UP]
+            + c_[i, UP] * c_[a, DOWN]
+        )
+    )
+    expected += dr.einst(
+        h[a, i] * (
+            - c_dag[a, UP] * c_dag[i, DOWN]
+            + c_dag[a, DOWN] * c_dag[i, UP]
+        )
+    )
+    expected += dr.einst(
+        h[a, b] * (
+            c_dag[a, UP] * c_[b, UP]
+            + c_dag[a, DOWN] * c_[b, DOWN]
+        )
+    )
+
+    assert (res - expected).simplify() == 0
 
 
 def test_special_substitution_of_identity(free_alg):

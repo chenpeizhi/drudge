@@ -1279,7 +1279,7 @@ class Tensor:
         )
 
     def subst_all(
-            self, defs, simplify=False, full_balance=False, excl=None,
+            self, defs, simplify=False, wilds=None, full_balance=False, excl=None,
             simult=True, simult_all=False
     ):
         """Substitute all given definitions.
@@ -1313,7 +1313,7 @@ class Tensor:
                 )
 
             res = res.subst(
-                lhs, rhs, full_balance=full_balance, excl=excl, 
+                lhs, rhs, wilds=wilds, full_balance=full_balance, excl=excl,
                 simult=simult, keep_decorated=simult_all
             )
             if sequentially_simplify:

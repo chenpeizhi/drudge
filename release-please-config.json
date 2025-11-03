@@ -1,0 +1,13 @@
+{
+  "release-type": "python",
+  "packages": {
+    ".": {
+      "package-name": "drudge",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        "CITATION.cff"
+      ]
+    }
+  },
+  "bootstrap-sha": "7880318c3c4bcfa16288969797fc4fd663fe72a9"
+}

@@ -1196,17 +1196,12 @@ static PyObject* canon_eldag_func(
         return NULL;
     }
 
-    Point_vec edges{};
-    Point_vec ia{};
-    size_t n_nodes;
-    Node_symms<Simple_perm> symms{};
-    Point_vec colours{};
+    Point_vec edges = read_points(edges_arg);
+    Point_vec ia = read_points(ia_arg);
+    size_t n_nodes = ia.size() - 1;
+    Node_symms<Simple_perm> symms = read_symms(symms_arg);
+    Point_vec colours = read_points(colours_arg);
 
-    edges = read_points(edges_arg);
-    ia = read_points(ia_arg);
-    n_nodes = ia.size() - 1;
-
-    symms = read_symms(symms_arg);
     if (symms.size() != n_nodes) {
         std::string err_msg("Expecting ");
         err_msg += std::to_string(n_nodes);
@@ -1217,7 +1212,6 @@ static PyObject* canon_eldag_func(
         return NULL;
     }
 
-    colours = read_points(colours_arg);
     if (colours.size() != n_nodes) {
         std::string err_msg("Expecting ");
         err_msg += std::to_string(n_nodes);

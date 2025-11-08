@@ -1,6 +1,13 @@
 [build-system]
-requires = ["setuptools>=77", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["scikit-build-core>=0.10"]
+build-backend = "scikit_build_core.build"
+
+[tool.scikit-build]
+cmake.minimum-version = "3.15"  # Minimum version of CMake
+cmake.verbose = true  # Build verbose for debugging
+# Don't create a separate subdirectory - install alongside Python source files
+wheel.packages = ["drudge"]
+sdist.include = ["drudge/templates/*", "drudge/*.h", "deps/libcanon/include/**/*.h"]
 
 [project]
 name = "drudge"
@@ -44,9 +51,3 @@ Homepage = "https://github.com/DrudgeCAS/drudge"
 
 [project.scripts]
 drudge = "drudge.drs:main"
-
-[tool.setuptools]
-include-package-data = true
-
-[tool.setuptools.package-data]
-drudge = ["templates/*", "*.h"]

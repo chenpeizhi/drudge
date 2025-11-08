@@ -438,7 +438,7 @@ class Stopwatch:
 
     """
 
-    def __init__(self, print_cb=print):
+    def __init__(self, print_cb=print, time_func=time.time):
         """Initialize the stopwatch.
 
         Parameters
@@ -447,9 +447,13 @@ class Stopwatch:
         print_cb
             The function will be called with the formatted time-stamp.  By
             default, it will just be written to stdout.
+        time_func
+            The function to get the current time.  By default, it will be the
+            standard time.time function.
 
         """
         self._print = print_cb
+        self._time_func = time_func
         self.tick(total=True)
 
     def tick(self, total=False):
@@ -462,7 +466,7 @@ class Stopwatch:
             If the total beginning time is going to be reset as well.
 
         """
-        self._prev = time.time()
+        self._prev = self._time_func()
         if total:
             self._begin = self._prev
 
@@ -493,7 +497,7 @@ class Stopwatch:
         else:
             n_terms = ''
 
-        now = time.time()
+        now = self._time_func()
         elapse = now - self._prev
         self._prev = now
 
@@ -508,7 +512,7 @@ class Stopwatch:
         last reset.
         """
 
-        now = time.time()
+        now = self._time_func()
         self._print(
             'Total wall time: {:.2f} s'.format(now - self._begin)
         )

@@ -14,13 +14,6 @@ from drudge.term import parse_terms, try_resolve_range
 from drudge.utils import extract_alnum, SymbResolver
 
 
-class FakeTime:
-    def __init__(self, seq):
-        self._iter = iter(seq)
-    def __call__(self):
-        return next(self._iter)
-
-
 def test_sum_prod_utility():
     """Test the summation and product utility."""
 
@@ -45,25 +38,23 @@ def test_stopwatch():
     def print_cb(stamp):
         res_holder[0] = stamp
 
-    # Use a fake time function to simulate the timing for testing.
-    fake_time = FakeTime([0, 0.5, 1.0, 1.5])
-    stamper = Stopwatch(print_cb, time_func=fake_time)
-    # time.sleep(0.5)
+    stamper = Stopwatch(print_cb)
+    time.sleep(0.5)
     stamper.tock('Nothing')
     res = res_holder[0]
     assert res.startswith('Nothing done')
     assert float(res.split()[-2]) - 0.5 < 0.1
 
-    # time.sleep(0.5)
+    time.sleep(0.5)
     stamper.tock('Tensor', tensor)
     res = res_holder[0]
     assert res.startswith('Tensor done, 2 terms')
-    assert float(res.split()[-2]) - 0.7 < 0.1
+    assert float(res.split()[-2]) - 0.5 < 0.1
     tensor.cache.assert_called_once_with()
 
     stamper.tock_total()
     res = res_holder[0]
-    assert float(res.split()[-2]) - 1.5 < 0.1
+    assert float(res.split()[-2]) - 1.0 < 0.1
 
 
 def test_invariant_indexable():

@@ -29,6 +29,13 @@ def test_sum_prod_utility():
     assert prod_([]) == 1
 
 
+def precise_sleep(seconds):
+    """Sleep function for testing the stopwatch utility precisely."""
+    start_time = time.perf_counter()
+    while time.perf_counter() - start_time < seconds:
+        pass
+
+
 def test_stopwatch():
     """Test the stopwatch utility."""
 
@@ -39,13 +46,13 @@ def test_stopwatch():
         res_holder[0] = stamp
 
     stamper = Stopwatch(print_cb)
-    time.sleep(0.5)
+    precise_sleep(0.5)
     stamper.tock('Nothing')
     res = res_holder[0]
     assert res.startswith('Nothing done')
     assert float(res.split()[-2]) - 0.5 < 0.1
 
-    time.sleep(0.5)
+    precise_sleep(0.5)
     stamper.tock('Tensor', tensor)
     res = res_holder[0]
     assert res.startswith('Tensor done, 2 terms')

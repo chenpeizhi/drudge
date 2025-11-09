@@ -462,7 +462,7 @@ class Stopwatch:
             If the total beginning time is going to be reset as well.
 
         """
-        self._prev = time.time()
+        self._prev = time.perf_counter()
         if total:
             self._begin = self._prev
 
@@ -493,7 +493,7 @@ class Stopwatch:
         else:
             n_terms = ''
 
-        now = time.time()
+        now = time.perf_counter()
         elapse = now - self._prev
         self._prev = now
 
@@ -508,7 +508,7 @@ class Stopwatch:
         last reset.
         """
 
-        now = time.time()
+        now = time.perf_counter()
         self._print(
             'Total wall time: {:.2f} s'.format(now - self._begin)
         )
